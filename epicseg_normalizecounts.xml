@@ -6,31 +6,38 @@
 		<requirement type="package" version="1.0">epicseg</requirement>
 	    </requirements>
 	    <command detect_errors="exit_code"><![CDATA[
-		#for $dataset in $datasets# 
-                ln -s ${dataset.counts} `basename ${dataset.counts}` &&
-                #end for# 
-                Rscript '${__tool_directory__}/epicseg.R' normalizecounts --nthreads $nthreads 
-                #for $dataset in $datasets# 
+
+		    #for $dataset in $datasets#
+              ln -s ${dataset.counts} `basename ${dataset.counts}` &&
+            #end for#
+
+            Rscript '${__tool_directory__}/epicseg.R' normalizecounts
+                --nthreads $nthreads
+
+            #for $dataset in $datasets#
                 --counts `basename ${dataset.counts}`
-                #end for# && 
-                rename "s/.dat/.txt/" *_norm.dat;
-                rename 's/^/norm_/' *_norm.txt; 
+            #end for# &&
+
+            rename "s/.dat/.txt/" *_norm.dat &&
+            rename 's/^/norm_/' *_norm.txt;
 	    ]]></command>
 	    <inputs>
 		<repeat name="datasets" title="Count matrix">
 		    <param type="data" name="counts" label="Count matrix"
                    format="txt"
+
                    help="Count matrix such as those produced by
-                   *epicseg_getcounts*. In case multiple count matrices
-                   are used, they must have the same marks and the same
-                   number of bins"/>
+                         epicseg_getcounts. In case multiple count matrices
+                         are used, they must have the same marks and the same
+                         number of bins"/>
 		</repeat>
 		<param type="integer" name="nthreads"
                 value="1" help="Number of threads to use."/>
 	    </inputs>
 	    <outputs>
 		  <data name="ncounts" format="txt">
-		     <discover_datasets pattern="norm" format="txt" visible="true" assign_primary_output="true" />
+		     <discover_datasets pattern="norm" format="txt" visible="true"
+                                assign_primary_output="true" />
 		  </data>
 	    </outputs>
         <tests>
@@ -42,18 +49,18 @@
           </test>
         </tests>
 	    <help><![CDATA[
-	.. class:: infomark
+.. class:: infomark
 
-	**What it does**
+**What it does**
 
-	epicseg_normalizecounts normalizes a set of count matrices
-	which were obtained from different samples (e.g. cell-types). All count matrices
-	must share the same chromatin marks and number of bins.
+**EpiCSeg - Normalize counts** normalizes a set of count matrices in order to make
+them comparable. This is useful if one seeks to analyse samples across different
+conditions or cell-types.
+It is required that all count matrices share the same chromatin marks and
+number of bins.
 
-	**epicseg_normalizecounts** takes as input
-	a set of count matrices (e.g. obtained with epicseg_getcounts)
-	and produces a corresponding set of normalized count matrix.
-
+As a result this program produces a set of corresponding normalized count matrix
+that can be used with **EpiCSeg - Segment**.
 	    ]]></help>
     <expand macro="citations" />
 </tool>
